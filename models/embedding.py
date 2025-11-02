@@ -57,6 +57,7 @@ class PositionalEmbedding(nn.Module):
         return x
     
 
+
 def test_previous():
     # 1) 取一个真正大模型的词表（BERT base）
     # Load model directly
