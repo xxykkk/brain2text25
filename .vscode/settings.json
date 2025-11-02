@@ -1,0 +1,16 @@
+{
+    "python.analysis.exclude": [
+        "grammar/*",
+        "data/*",
+        "logs/*",
+        "results/*",
+    ],
+    "files.watcherExclude": {
+        ".env": true,
+        "**/data/**": true,
+        "**/grammar/**": true,
+        "**/results/**": true,
+        "LICENSE": true
+    },
+    "notebook.output.wordWrap": true
+}

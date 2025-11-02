@@ -1,0 +1,9 @@
+
+
+*__pycache__*
+
+data/
+nejm-brain-to-text/data/
+trained_models/
+nejm-brain-to-text/language_model/
+nejm-brain-to-text/model_training/trained_models/
