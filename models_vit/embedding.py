@@ -7,7 +7,7 @@ class VisionPatchEmbedding(nn.Module):
     def __init__(self, image_size, patch_size, in_channels, embed_dim, flatter=True):
         super().__init__()
         self.proj = nn.Conv2d(in_channels, embed_dim, patch_size, patch_size)
-        self.norm = nn.LayerNorm(embed_dim)
+        #self.norm = nn.LayerNorm(embed_dim) # vit官方代码没有
         self.flatter = flatter
         self.num_patches = (image_size // patch_size) ** 2
 
@@ -15,7 +15,7 @@ class VisionPatchEmbedding(nn.Module):
         x = self.proj(x)
         if self.flatter:
             x = x.flatten(2).transpose(1, 2)  # [B, C, H, W] -> [B, N, C]
-        x = self.norm(x)
+        #x = self.norm(x)
         return x
     
 
