@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from torchvision.transforms import transforms
 from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
-
+import time
 
 import os, argparse
 
@@ -17,8 +17,9 @@ def get_data_loader(batch_size, path):
         ImageFolder(
             root=os.path.join(path, 'train'),
             transform=transforms.Compose([
+                transforms.RandomVerticalFlip(),
                 transforms.RandomHorizontalFlip(),
-                transforms.RandomResizedCrop(224),
+                transforms.RandomResizedCrop(448),
                 transforms.Resize((224, 224)),
                 transforms.ToTensor(),
                 #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -193,18 +194,12 @@ def load_official_vit_weights(my_model: torch.nn.Module) -> torch.nn.Module:
     return my_model
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--ds_path', type=str, default=r'/home/cook/data/Datasets/fruit30_split')
-    parser.add_argument('--batch_size', type=int, default=32)
-    parser.add_argument('--warmup_epochs', type=int, default=10)
-    args = parser.parse_args()
 
+def main(args):
     model = VisionTransformer(224, 16, 3, 
                             num_classes=30, embed_dim=768, 
                             num_heads=12, depth=12, qkv_bias=True, 
-                            attn_drop_rate=0.1, proj_drop_rate=0.1)
+                            attn_drop_rate=0.2, proj_drop_rate=0.2)
     train_loader, val_loader = get_data_loader(args.batch_size, args.ds_path)
     criterion = nn.CrossEntropyLoss()
 
@@ -227,6 +222,7 @@ if __name__ == "__main__":
     print("Start training...")
 
     for epoch in range(args.epochs):
+        ss = time.time()
         model.train()
         
         train_total_loss = 0
@@ -261,6 +257,7 @@ if __name__ == "__main__":
         print(f"Epoch {epoch}, LR: {scheduler.get_last_lr()[0]:.6f}")
         scheduler.step()
         print(f"Epoch {epoch}, LR: {scheduler.get_last_lr()[0]:.6f}")
+        print(f"Epoch {epoch}, time: {time.time() - ss:.2f}")
 
 
         model.eval()
@@ -289,6 +286,17 @@ if __name__ == "__main__":
         if val_total_loss / len(val_loader) < best_loss:
             best_loss = val_total_loss / len(val_loader)
             torch.save(model.state_dict(), f'My_exp/vit_fruit30_best.pth')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--ds_path', type=str, default=r'/home/cook/data/Datasets/fruit30_split')
+    # /home/liuke/data/other/fruit30_split
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--warmup_epochs', type=int, default=10)
+    args = parser.parse_args()
+
+    main(args)
 
 
 

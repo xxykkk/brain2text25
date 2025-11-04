@@ -13,7 +13,8 @@ class DropPath(nn.Module):
         super(DropPath, self).__init__()
         self.drop_prob = drop_prob
 
-    def drop_path(self, x, drop_prob, training):
+    def drop_path(self, x, drop_prob, training = True):
+        training = self.training
         if drop_prob == 0. or not training:
             return x
         keep_prob       = 1 - drop_prob
@@ -22,9 +23,12 @@ class DropPath(nn.Module):
         random_tensor.floor_() 
         output          = x.div(keep_prob) * random_tensor
         return output
+    
+    def forward(self, x):
+        return self.drop_path(x, self.drop_prob)
 
 class Block(nn.Module):
-    def __init__(self, dim, num_heads, mlp_ratio=4.0, qkv_bias=False, attn_drop_rate=0.0, proj_drop_rate=0.0, drop_path = 0.):
+    def __init__(self, dim, num_heads, mlp_ratio=4.0, qkv_bias=False, attn_drop_rate=0.0, proj_drop_rate=0.0, drop_path = 0.1):
         super().__init__()
         self.norm1 = nn.LayerNorm(dim)
         self.attn = SelfAttention(dim, num_heads, qkv_bias, attn_drop_rate, proj_drop_rate) 
